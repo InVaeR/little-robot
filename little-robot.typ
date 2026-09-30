@@ -9,10 +9,10 @@
   numbering: none,
 )
 
-// Default run formatting: Proxima Nova is replaced by Book Antiqua throughout
-// the body (every paragraph/run in the source carries a Book Antiqua override).
+// Default run formatting: body typeset in PT Serif (free, open licence,
+// full Cyrillic support) -- the same family used on the website version.
 // Default size 11pt, colour #353744.
-#set text(font: "Book Antiqua", size: 11pt, fill: rgb("#353744"), lang: "ru")
+#set text(font: "PT Serif", size: 11pt, fill: rgb("#353744"), lang: "ru")
 
 // Paragraph spacing: the source uses "space before 12pt / after 12pt"
 // (w:spacing w:before="240" w:after="240") and "line 312 auto", i.e. Word's
@@ -35,7 +35,7 @@
 // first thing in the body, so a show rule would silently render it as 0.
 #set heading(numbering: none, outlined: false)
 #show heading.where(level: 1): set text(
-  font: "Book Antiqua",
+  font: "Playfair Display",
   size: 14pt,
   weight: "bold",
   fill: rgb("#353744"),

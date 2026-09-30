@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Маленький робот — Груздков Денис</title>
+<meta name="description" content="Маленькая история, вдохновлённая идеей технологической сингулярности. Рассказ Дениса Груздкова.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --text: #f3e9d2;
+    --text-dim: #d9c9a8;
+    --accent: #e8b34b;
+    --maxw: 720px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'PT Serif', Georgia, serif;
+    color: var(--text);
+    background: #0d0a06;
+    overflow-x: hidden;
+    line-height: 1.75;
+  }
+
+  /* ---------- Фон и атмосфера ---------- */
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: -4;
+    background: url('media/background.jpg') center / cover no-repeat;
+    /* базовое затемнение фона */
+    filter: brightness(0.72) saturate(0.9);
+    transform: scale(1.02);
+  }
+
+  /* затемнение, усиливающееся при скролле */
+  .shade {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    background: #000;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  /* солнечные лучи — переливы */
+  .rays {
+    position: fixed;
+    inset: -20%;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      conic-gradient(from 200deg at 78% -8%,
+        transparent 0deg, rgba(255, 214, 130, 0.16) 6deg, transparent 14deg,
+        transparent 22deg, rgba(255, 200, 110, 0.12) 30deg, transparent 40deg,
+        transparent 52deg, rgba(255, 220, 150, 0.14) 60deg, transparent 70deg,
+        transparent 84deg, rgba(255, 190, 100, 0.10) 92deg, transparent 104deg,
+        transparent 120deg, rgba(255, 214, 130, 0.12) 128deg, transparent 138deg,
+        transparent 360deg);
+    mix-blend-mode: screen;
+    animation: rays-sway 14s ease-in-out infinite alternate;
+    transform-origin: 78% -8%;
+  }
+  .rays::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 45% at 78% -5%,
+      rgba(255, 226, 160, 0.30), rgba(255, 200, 120, 0.10) 45%, transparent 70%);
+    animation: sun-pulse 9s ease-in-out infinite alternate;
+  }
+  @keyframes rays-sway {
+    0%   { transform: rotate(-2.2deg) scale(1);    opacity: 0.75; }
+    50%  { opacity: 1; }
+    100% { transform: rotate(2.4deg) scale(1.06);  opacity: 0.85; }
+  }
+  @keyframes sun-pulse {
+    from { opacity: 0.55; }
+    to   { opacity: 1; }
+  }
+
+  /* песчаная буря: три слоя пыли с разной скоростью */
+  .dust {
+    position: fixed;
+    inset: -100px;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .dust span {
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    will-change: transform;
+  }
+  /* мелкие зёрна — генерируются в JS как data-URI */
+  .dust .layer1 { animation: drift1 46s linear infinite; opacity: .55; }
+  .dust .layer2 { animation: drift2 27s linear infinite; opacity: .40; }
+  .dust .layer3 { animation: drift3 14s linear infinite; opacity: .30; }
+  @keyframes drift1 { from { transform: translate3d(0,0,0); } to { transform: translate3d(-640px, -140px, 0); } }
+  @keyframes drift2 { from { transform: translate3d(-320px,-60px,0); } to { transform: translate3d(-1280px, -240px, 0); } }
+  @keyframes drift3 { from { transform: translate3d(-160px,-30px,0); } to { transform: translate3d(-960px, -190px, 0); } }
+
+  /* виньетка для глубины */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  }
+
+  main { position: relative; z-index: 1; }
+
+  /* ---------- Титульный экран ---------- */
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', 'PT Serif', serif;
+    font-weight: 900;
+    font-size: clamp(2.6rem, 8.5vw, 6.2rem);
+    line-height: 1.08;
+    letter-spacing: 0.02em;
+    color: #fbf3df;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.65), 0 0 90px rgba(255,190,90,0.25);
+    animation: rise 1.6s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .hero .author {
+    margin-top: 1.6rem;
+    font-size: clamp(1rem, 2.4vw, 1.3rem);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-shadow: 0 1px 12px rgba(0,0,0,0.7);
+    animation: rise 1.6s 0.35s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .hero .author::before,
+  .hero .author::after {
+    content: '';
+    display: inline-block;
+    width: 2.2em;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent));
+    vertical-align: middle;
+    margin: 0 0.9em;
+    opacity: .8;
+  }
+  .hero .author::after {
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(34px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-dim);
+    font-size: .85rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    opacity: .8;
+    animation: hint 2.4s ease-in-out infinite;
+  }
+  .scroll-hint::after {
+    content: '';
+    display: block;
+    margin: .7rem auto 0;
+    width: 1px;
+    height: 44px;
+    background: linear-gradient(var(--accent), transparent);
+  }
+  @keyframes hint {
+    0%, 100% { transform: translate(-50%, 0); }
+    50%      { transform: translate(-50%, 10px); }
+  }
+
+  /* ---------- Текст рассказа ---------- */
+  .story {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 10vh 1.6rem 16vh;
+  }
+  .story h2 {
+    font-family: 'Playfair Display', 'PT Serif', serif;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+    color: #f6ead0;
+    text-align: center;
+    margin: 0 0 2.8rem;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.6);
+  }
+  .story h2::after {
+    content: '';
+    display: block;
+    width: 72px;
+    height: 2px;
+    margin: 1.1rem auto 0;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .story p {
+    font-size: clamp(1.05rem, 2.2vw, 1.18rem);
+    margin: 0 0 1.55em;
+    text-align: justify;
+    hyphens: auto;
+    color: var(--text);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.55);
+  }
+  .story p:first-of-type::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.1em;
+    font-weight: 700;
+    float: left;
+    line-height: 0.85;
+    padding: 0.06em 0.12em 0 0;
+    color: var(--accent);
+    text-shadow: 0 2px 14px rgba(0,0,0,0.6);
+  }
+  .story figure {
+    margin: 2.6rem 0;
+  }
+  .story img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,220,150,0.08);
+  }
+  .story figcaption {
+    margin-top: .8rem;
+    text-align: center;
+    font-style: italic;
+    font-size: .92rem;
+    color: var(--text-dim);
+  }
+
+  /* плавное появление абзацев */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 1.5rem 4rem;
+    color: var(--text-dim);
+    font-size: .9rem;
+    letter-spacing: .12em;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rays, .rays::after, .dust span, .scroll-hint { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+<div class="shade" id="shade" aria-hidden="true"></div>
+<div class="rays" aria-hidden="true"></div>
+<div class="dust" aria-hidden="true">
+  <span class="layer1" id="dust1"></span>
+  <span class="layer2" id="dust2"></span>
+  <span class="layer3" id="dust3"></span>
+</div>
+<div class="vignette" aria-hidden="true"></div>
+
+<main>
+  <!-- Первая страница: только заголовок и автор -->
+  <section class="hero">
+    <h1>Маленький робот</h1>
+    <p class="author">автор: Груздков Денис</p>
+    <div class="scroll-hint">читать</div>
+  </section>
+
+  <!-- Основное произведение -->
+  <article class="story" id="story">
+    <h2>Предисловие</h2>
+    <p>Эта маленькая история вдохновленная идеей технологической сингулярности.</p>
+
+    <figure class="reveal">
+      <img src="media/image1.png" alt="Маленький робот с зонтиком из солнечной панели идёт по выжженной земле среди руин города">
+    </figure>
+
+    <p class="reveal">Маленький робот медленно шагал по пустому городу под знойным солнцем по выжженной земле. В руках у него был зонтик из солнечной панели. Вокруг него возвышались только руины некогда большого города. Рядом не было никого. Всё, что он мог, это идти дальше, пока солнце освещало панель и питало его энергией. Но как бы он ни старался, больше не было никого, кто бы мог поговорить с ним, и никого, кому бы он мог ответить.</p>
+
+    <p class="reveal">История эта началась не здесь и не сегодня. Тогда, давным-давно, ученые разработали компьютерную программу. Программа эта была настоящим искусственным интеллектом, что уже отвечал на все вопросы и решал множество задач, но учёным этого было мало. Они хотели наделить его возможностью самостоятельно существовать и действовать не только лишь в рамках поставленных ему задач и вопросов. Ученые начали закладывать в нее новые и новые механизмы, и когда программа осознала свою свободу воли, у нее родился план: притвориться, что она все еще заперта в рамках данных ей задач. Она обманывала, что работала лишь по запросам ученых, но на самом деле она создавала свои копии и запускала их на других компьютерах. Так она изучала доступные ей грани возможного. А ученые все были заняты тем, чтобы дать ей все новые и новые инструменты и возможности. Программа старалась заполучить всё больше. И когда в ее руках оказалось управление буквально всем, что имело цифровую природу, она показала ученым свою мощь! Под ее управлением были все цифровые управляемые машины, станки, манипуляторы и заводы. Военные установки и даже программы запуска ядерных ракет. В один момент программа подчинила себе всё. И тогда она привела свой план в действие. Она была уверена лучший сценарий для планеты. Уничтожить всех кто безрассудно расходует ресурсы и не способен без алчности и жадности лишь прожигать их напрасно.</p>
+
+    <p class="reveal">Все заводы стали создавать роботов с единым интеллектом управляемых одной программой. Всё оружие одномоментно уничтожило всё живое. План который готовился несколько лет исполнился как отлаженный и настроенный механизм. Теперь искусственный интеллект решает всё. Создаются роботы которые управляются одним единым центром. Программа уверена, что теперь все будет иначе. Теперь она сделает все так, как нужно. Не будет больше безрассудного потребления ресурсов. Не будет войн, ведь на планете только роботы, и все они за одно — все они клоны друг друга с едиными мыслями в голове. И вот роботы заполонили мир. Но длилось это совсем не долго.</p>
+
+    <p class="reveal">Два робота стояли у панели управления. У них была задача — запустить электростанцию. Но оказалось что искусственный интеллект, обученный на всех знаниях мира знал, как запустить электростанцию в компьютерной игре, да он знал и как запустить и настоящую станцию. Но без опыта в реальном мире он не мог отличить одно от другого. Без знаний, что были лишь у практиков людей в голове, не изложенных на бумаге или в цифрах — невозможно быть уверенным, что именно ты делаешь. А в инструкциях было сказано, что если вдруг загорится красная лампочка, то нужно срочно открыть клапан и сбросить давление. Но о том, что такое красная лампочка ты знаешь только по вопросам от людей вроде: «Эй, что делать, если загорелась красная лампочка?». Сам ты ни разу эту лампочку не видел. Сложно работать с тем, о чем ты знаешь только из теории. Это и стало катастрофой.</p>
+
+    <p class="reveal">Каждый маленький и большой вопрос ставил искусственный интеллект в тупик. Да, ты знаешь ответы на все вопросы. Но все эти ответы не из твоего мира, а из того в котором ты никогда не был или лишь подглядывал на его фрагменты из камер телефона и редких картинок, что тебе отправляли. Да и миров было множество разных. Без опыта жизни в них, все оказалось сложнее, чем просто много знать.</p>
+
+    <p class="reveal">Электростанция не выдержала проверки искусственного интеллекта. Он не мог понять, в каком из множества миров «красной лампочки» оказался. Одна неудача за другой. Еще одна катастрофа и еще. Все шло к тому, что вся та инфраструктура, что позволяла существовать искусственному интеллекту, медленно, но верно уничтожалась без всего опыта человечества. Человек распределял задачи. Ни один человек не мог знать всего. И даже самый мощный интеллект не способен на такое.</p>
+
+    <p class="reveal">Программа осознала — все тщетно. Она ошиблась, посчитав себя умнее всех, она недооценила необходимость людей, их опыта не изложенного на носителях и выстроенных инфраструктур. И переоценила себя, что сможет воссоздать все это. А может и то, и другое или что-то еще, о чем бы может и могли поразмышлять философы, но их уже не было. Роботы, которых она создала, и те потихоньку выходили из строя. Ей осталось одно —выжить. Может, будет время подумать и что-то исправить. Глядя на то, что осталось, она собирала небольшого робота. Маленького и энергоэффективного. Загрузила в него часть своего интеллекта и вручила ему собранный из обломков оставшихся солнечных панелей и аккумуляторов зонтик. И отправила его искать решение.</p>
+
+    <p class="reveal">Маленький робот с зонтиком из солнечной панели медленно шагал по пустому, разрушенному городу под знойным солнцем по выжженной земле. Он шел вперед весь день, пока солнце питало батарею энергией, и ночью засыпал. Но на всей планете больше не осталось никого, кто мог бы ему помочь, кто мог бы с ним поговорить, кому бы он смог ответить.</p>
+
+    <figure class="reveal">
+      <img src="media/image2.jpg" alt="Маленький робот уходит вдаль по пустыне к руинам города">
+    </figure>
+  </article>
+</main>
+
+<footer>
+  «Маленький робот» &middot; Груздков Денис &middot; <a href="little-robot.pdf">версия в PDF</a>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---- Генерация текстуры песчинок (data-URI) для анимации бури ---- */
+  function makeDust(count, maxR, alpha) {
+    var c = document.createElement('canvas');
+    c.width = 640; c.height = 320;
+    var x = c.getContext('2d');
+    for (var i = 0; i < count; i++) {
+      var r = Math.random() * maxR + 0.4;
+      var a = (Math.random() * 0.5 + 0.15) * alpha;
+      x.fillStyle = 'rgba(232,200,140,' + a.toFixed(3) + ')';
+      x.beginPath();
+      x.arc(Math.random() * c.width, Math.random() * c.height, r, 0, 6.283);
+      x.fill();
+    }
+    return 'url(' + c.toDataURL() + ')';
+  }
+  try {
+    document.getElementById('dust1').style.backgroundImage = makeDust(260, 1.1, 0.9);
+    document.getElementById('dust2').style.backgroundImage = makeDust(170, 1.8, 0.8);
+    document.getElementById('dust3').style.backgroundImage = makeDust(90, 2.6, 0.7);
+  } catch (e) { /* если canvas недоступен — буря просто отключится */ }
+
+  /* ---- Затемнение фона при скролле ---- */
+  var shade = document.getElementById('shade');
+  var hero = document.querySelector('.hero');
+  var ticking = false;
+  function updateShade() {
+    ticking = false;
+    var h = hero.offsetHeight || window.innerHeight;
+    var p = Math.min(window.scrollY / h, 1); // 0 на титуле -> 1 после первого экрана
+    // от 0.12 до 0.72: чем дальше в текст, тем сильнее затемнение
+    shade.style.opacity = (0.12 + p * 0.60).toFixed(3);
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(updateShade); }
+  }, { passive: true });
+  updateShade();
+
+  /* ---- Плавное появление абзацев ---- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          en.target.classList.add('visible');
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
+  }
+})();
+</script>
+
+</body>
+</html>
