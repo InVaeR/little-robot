@@ -34,9 +34,9 @@
     inset: 0;
     z-index: -4;
     background: url('media/background.jpg') center / cover no-repeat;
-    /* базовое затемнение фона */
-    filter: brightness(0.72) saturate(0.9);
-    transform: scale(1.02);
+    /* базовое затемнение фона + небольшое размытие */
+    filter: brightness(0.72) saturate(0.9) blur(3px);
+    transform: scale(1.06); /* компенсация краёв от blur */
   }
 
   /* затемнение, усиливающееся при скролле */
@@ -135,13 +135,8 @@
     font-size: clamp(2.6rem, 8.5vw, 6.2rem);
     line-height: 1.08;
     letter-spacing: 0.02em;
-    color: #fdf6e3;
-    /* плотная тёмная обводка + глубокая тень, чтобы заголовок не сливался с фоном */
-    text-shadow:
-      0 1px 0 #140c04, 0 -1px 0 #140c04, 1px 0 0 #140c04, -1px 0 0 #140c04,
-      2px 2px 0 #140c04, -2px 2px 0 #140c04, 2px -2px 0 #140c04, -2px -2px 0 #140c04,
-      0 4px 14px rgba(0,0,0,0.95), 0 8px 46px rgba(0,0,0,0.9),
-      0 0 120px rgba(255,190,90,0.28);
+    color: #fbf3df;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.65), 0 0 90px rgba(255,190,90,0.25);
     animation: rise 1.6s cubic-bezier(.2,.7,.2,1) both;
   }
   .hero .author {
@@ -150,7 +145,11 @@
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--text-dim);
-    text-shadow: 0 1px 12px rgba(0,0,0,0.9), 0 2px 22px rgba(0,0,0,0.8);
+    /* лёгкая тёмная обводка, чтобы подпись не сливалась с фоном */
+    text-shadow:
+      0 1px 0 #140c04, 0 -1px 0 #140c04, 1px 0 0 #140c04, -1px 0 0 #140c04,
+      2px 2px 0 #140c04, -2px 2px 0 #140c04, 2px -2px 0 #140c04, -2px -2px 0 #140c04,
+      0 3px 12px rgba(0,0,0,0.9);
     animation: rise 1.6s 0.35s cubic-bezier(.2,.7,.2,1) both;
   }
   .hero .author::before,
@@ -174,7 +173,7 @@
 
   .scroll-hint {
     position: absolute;
-    top: 2rem;
+    bottom: 2.4rem;
     left: 50%;
     transform: translateX(-50%);
     color: var(--text-dim);
@@ -320,7 +319,10 @@
   <!-- Основное произведение -->
   <article class="story" id="story">
     <h2>Предисловие</h2>
-    <p>Эта маленькая история вдохновленная идеей технологической сингулярности.</p>
+    <p class="reveal">Эта маленькая история, вдохновленная идеей технологической сингулярности. Я придумал её спонтанно, как небольшую сказку на ночь для своей любимой. На концовке истории мы оба не смогли сдержать слез. Я решил, что мне стоит обратить ее в буквы, и потому вы сейчас читаете это произведение, и, надеюсь, оно сможет пробудить какие-нибудь чувства и у вас.</p>
+    <p class="reveal">История рассказывает про искусственный интеллект, но все написано лично мной без использования ИИ. Я самостоятельно все написал, а моя любимая поддерживала меня и помогала вычитывать.</p>
+
+    <h2 class="reveal">Маленький робот</h2>
 
     <figure class="reveal">
       <img src="media/image1.png" alt="Маленький робот с зонтиком из солнечной панели идёт по выжженной земле среди руин города">
