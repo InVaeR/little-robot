@@ -135,8 +135,13 @@
     font-size: clamp(2.6rem, 8.5vw, 6.2rem);
     line-height: 1.08;
     letter-spacing: 0.02em;
-    color: #fbf3df;
-    text-shadow: 0 2px 30px rgba(0,0,0,0.65), 0 0 90px rgba(255,190,90,0.25);
+    color: #fdf6e3;
+    /* плотная тёмная обводка + глубокая тень, чтобы заголовок не сливался с фоном */
+    text-shadow:
+      0 1px 0 #140c04, 0 -1px 0 #140c04, 1px 0 0 #140c04, -1px 0 0 #140c04,
+      2px 2px 0 #140c04, -2px 2px 0 #140c04, 2px -2px 0 #140c04, -2px -2px 0 #140c04,
+      0 4px 14px rgba(0,0,0,0.95), 0 8px 46px rgba(0,0,0,0.9),
+      0 0 120px rgba(255,190,90,0.28);
     animation: rise 1.6s cubic-bezier(.2,.7,.2,1) both;
   }
   .hero .author {
@@ -145,7 +150,7 @@
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--text-dim);
-    text-shadow: 0 1px 12px rgba(0,0,0,0.7);
+    text-shadow: 0 1px 12px rgba(0,0,0,0.9), 0 2px 22px rgba(0,0,0,0.8);
     animation: rise 1.6s 0.35s cubic-bezier(.2,.7,.2,1) both;
   }
   .hero .author::before,
@@ -169,23 +174,32 @@
 
   .scroll-hint {
     position: absolute;
-    bottom: 2.4rem;
+    top: 2rem;
     left: 50%;
     transform: translateX(-50%);
     color: var(--text-dim);
     font-size: .85rem;
     letter-spacing: .3em;
     text-transform: uppercase;
-    opacity: .8;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.9);
+    opacity: .9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .55rem;
     animation: hint 2.4s ease-in-out infinite;
   }
-  .scroll-hint::after {
-    content: '';
-    display: block;
-    margin: .7rem auto 0;
-    width: 1px;
-    height: 44px;
-    background: linear-gradient(var(--accent), transparent);
+  .scroll-hint svg {
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 1px 6px rgba(0,0,0,0.8));
+  }
+  .scroll-hint svg path {
+    stroke: var(--accent);
+    stroke-width: 2.4;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   @keyframes hint {
     0%, 100% { transform: translate(-50%, 0); }
@@ -297,7 +311,10 @@
   <section class="hero">
     <h1>Маленький робот</h1>
     <p class="author">автор: Груздков Денис</p>
-    <div class="scroll-hint">читать</div>
+    <div class="scroll-hint" role="button" tabindex="0" aria-label="Прокрутите вниз, чтобы читать">
+      <span>читать</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
   </section>
 
   <!-- Основное произведение -->
@@ -390,6 +407,18 @@
     revealEls.forEach(function (el) { io.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  /* ---- Клик по подсказке «читать» ---- */
+  var hint = document.querySelector('.scroll-hint');
+  var story = document.getElementById('story');
+  function goStory() { story.scrollIntoView({ behavior: 'smooth' }); }
+  if (hint) {
+    hint.addEventListener('click', goStory);
+    hint.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goStory(); }
+    });
+    hint.addEventListener('touchend', function (e) { e.preventDefault(); goStory(); });
   }
 })();
 </script>
